@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 
@@ -78,7 +79,7 @@
          }
          return -1;
       }
-      //构造节点类，坐标（node[0]，node[1])
+      //构造节点类，坐标（node[0]，node[1])）
       function Node(node) {
          //构造节点自己
          this.node = new Array();
@@ -133,7 +134,7 @@
             function pushfather(foo) { //用来保存一个点的所有父节点
                road.push(foo.node);
                if ((foo.node[0] == 0) && (foo.node[1] == 0) ){
-                  console.log('road');
+                //  console.log('road');
                   return;
                }
                pushfather(foo.father);
@@ -141,7 +142,7 @@
 
             if ((child[0] === 44) && (child[1] === 44)) { //保存出口节点（[44,44]）的父节点，这个函数只运行一次，因为任何节点只会被生成一次。
                pushfather(newnode);
-               console.log('road');
+             //  console.log('road');
             }
 
             //开始拆墙
@@ -179,7 +180,7 @@
             document.getElementById('0000000000').classList.add('left');
             document.getElementById('0004400044').classList.add('right');
             nodes.splice(0, nodes.length);
-            console.log('the end');
+           // console.log('the end');
             return;
          }
       }
