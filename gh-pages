@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="utf-8">
+   <title>迷宫</title>
+   <style>
+      table {
+         border-collapse: collapse;
+      }
+
+      .road {
+         background-color: pink;
+      }
+
+      td {
+         width: 10px;
+         height: 10px;
+         border-top: 1px solid black;
+         border-left: 1px solid black;
+         border-right: 1px solid black;
+         border-bottom: 1px solid black;
+      }
+
+      .top {
+         border-top: 1px solid transparent;
+      }
+
+      .left {
+         border-left: 1px solid transparent;
+      }
+
+      .right {
+         border-right: 1px solid transparent;
+      }
+
+      .bottom {
+         border-bottom: 1px solid transparent;
+      }
+   </style>
+   <script>
+      "use strict";
+      //生成网格
+      var net = () => {
+         var grid = "";
+         for (let i = 0; i < 50; i++) {
+            grid = grid + "<tr>";
+            for (let j = 0; j < 50; j++) {
+               grid = grid + "<td id=" + i.toString().padStart(5, '0') + j.toString().padStart(5, '0') + "></td>";
+            }
+            grid = grid + "</tr>";
+         }
+         document.getElementById("maze").innerHTML = grid;
+         //清空之前生成的。
+         nodes = [];
+         road = [];
+         var firstnode = new Node([0, 0]); //建立初始节点对象。
+         //console.log(firstnode.node);
+         nodes.push(firstnode.node); //把第一个节点的坐标推入数组。
+         return firstnode.go();
+      }
+      //生成迷宫
+      var nodes = new Array(); //建立全局污染保存已遍历过在节点坐标。
+      var road = new Array(); //建立全局污染保存迷宫正确路径
+      var isin = (a, b) => { //遍历程序,判断数组a是否在二维数组b中
+         if (b.length != 0) {
+            for (let i = 0; i < b.length; i++) {
+               if ((b[i][0] === a[0]) && (b[i][1] === a[1])) {
+                  return 1;
+               }
+            }
+         }
+         return -1;
+      }
+      //构造节点类，坐标（node[0]，node[1])
+      class Node {
+         constructor(node) {
+            //构造节点自己
+            //this.node = new Array();
+            this.node = node;
+            //建立一个数组保存左节点
+            this.left = new Array();
+            this.left[0] = node[0];
+            this.left[1] = node[1] - 1;
+            //建立一个数组保存右节点
+            this.right = new Array();
+            this.right[0] = node[0];
+            this.right[1] = node[1] + 1;
+            //建立一个数组保存上节点
+            this.up = new Array();
+            this.up[0] = node[0] - 1;
+            this.up[1] = node[1];
+            //建立一个数组保存下节点
+            this.down = new Array();
+            this.down[0] = node[0] + 1;
+            this.down[1] = node[1];
+         }
+         go = () => {
+            this.children = new Array(); //建立一个数组保存子节点,这个数组是个二维数组
+            if ((this.node[1] > 0) && (isin([this.node[0], (this.node[1] - 1)], nodes) === -
+               1)) { //子节点要保证不超过边缘，还要保证该节点没被遍历过
+               this.children.push(this.left); //将左子节点推入子节点数组
+            }
+            if ((this.node[1] + 1 < 50) && (isin([this.node[0], (this.node[1] + 1)], nodes) === -1)) {
+               this.children.push(this.right);
+            }
+            if ((this.node[0]) > 0 && (isin([this.node[0] - 1, (this.node[1])], nodes) === -1)) {
+               this.children.push(this.up);
+            }
+            if ((this.node[0] + 1 < 50) && (isin([this.node[0] + 1, (this.node[1])], nodes) === -1)) {
+               this.children.push(this.down);
+            }
+            this.n = this.children.length; //n来保存子节点个数。
+            if (this.n > 0) {
+               var direction = Math.floor(Math.random() * this.n); //根据子节点数目进行随机选择子节点
+               var [...child] = this.children[direction]; //建立子节点数组,试了一下es6的新特性...
+               var newnode = new Node(child); //new出子节点
+               nodes.push(child); //用全局污染保存已遍历过在节点坐标。
+               newnode.father = this;//为子节点增加一个属性：父节点的指针
+               //迷宫正确道路标记函数
+               if ((child[0] === 49) && (child[1] === 49)) { //保存出口节点（[49,49]）的父节点，这个函数只运行一次，因为任何节点只会被生成一次。
+                  pushfather(newnode);
+               }
+               //开始拆墙
+               if ((child[0] == this.up[0]) && (child[1] == this.up[1])) {
+                  document.getElementById(this.node[0].toString().padStart(5, '0') + this.node[1].toString().padStart(
+                     5, '0')).classList.add('top');
+                  document.getElementById(child[0].toString().padStart(5, '0') + child[1].toString().padStart(5, '0'))
+                     .classList.add('bottom');
+               }
+               if ((child[0] == this.down[0]) && (child[1] == this.down[1])) {
+                  document.getElementById(this.node[0].toString().padStart(5, '0') + this.node[1].toString().padStart(
+                     5, '0')).classList.add('bottom');
+                  document.getElementById(child[0].toString().padStart(5, '0') + child[1].toString().padStart(5, '0'))
+                     .classList.add('top');
+               }
+               if ((child[0] == this.left[0]) && (child[1] == this.left[1])) {
+                  document.getElementById(this.node[0].toString().padStart(5, '0') + this.node[1].toString().padStart(
+                     5, '0')).classList.add('left');
+                  document.getElementById(child[0].toString().padStart(5, '0') + child[1].toString().padStart(5, '0'))
+                     .classList.add('right');
+               }
+               if ((child[0] == this.right[0]) && (child[1] == this.right[1])) {
+                  document.getElementById(this.node[0].toString().padStart(5, '0') + this.node[1].toString().padStart(
+                     5, '0')).classList.add('right');
+                  document.getElementById(child[0].toString().padStart(5, '0') + child[1].toString().padStart(5, '0'))
+                     .classList.add('left');
+               }
+               return newnode.go(); //启动递归
+            } else if ((this.node[0] != 0) || (this.node[1] != 0)) { //如果没有子节点需要生成，返回遍历父节点，直到[0,0]
+               return this.father.go();
+            } else {
+               document.getElementById('0000000000').classList.add('left');
+               document.getElementById('0004900049').classList.add('right');
+               nodes.splice(0, nodes.length);
+               // console.log('the end');
+               return;
+            }
+         }
+      }
+
+      //生成子节点，采取随机的深度优先遍历在方法做图转树。遍历与树生成同步进行，生成在新节点推入nodes数组,然后启动递归。直到某子节点在所有子节点都被生成过，退回父节点递归。递归出口为[0,0]。
+      var pushfather = (foo) => { //用来保存一个点的所有父节点
+         road.push(foo.node);
+         if ((foo.node[0] == 0) && (foo.node[1] == 0)) {
+            //  console.log('road');
+            return;
+         }
+         return pushfather(foo.father);
+      }
+      var markroad = () => {
+         for (let i = 0; i < 50; i++) {
+            for (let j = 0; j < 50; j++) {
+               if (isin(([i, j]), road) === 1) {
+                  document.getElementById(i.toString().padStart(5, '0') + j.toString().padStart(5, '0')).classList.add(
+                     'road');
+               }
+            }
+         }
+      }
+   </script>
+</head>
+
+<body>
+   <table id="maze"></table>
+   <button onclick="net()">生成迷宫</button>
+   <button onclick="markroad()">走迷宫</button>
+</body>
+
+</html>
