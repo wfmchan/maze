@@ -44,10 +44,10 @@
 </body>
 
 <script>
-
-
+let app=()=>{
+   let a = document.getElementById("myRange").value;//保存边长
    //生成网格
-   var net = () => {
+   let net = () => {
       let grid = "";
       for (let i = 0; i < a; i++) {
          grid = grid + "<tr>";
@@ -59,7 +59,6 @@
       document.getElementById("maze").innerHTML = grid;
       return
    }
-
    class Node {    //构造节点类
       constructor(node) {//node的构造函数接受一个节点坐标数组（[node[0]，node[1]]）
          this.node = new Array();
@@ -101,10 +100,10 @@
       }
    }
 
-   var nodes = new Array(); //建立全局污染保存已遍历的节点
-   var road = new Array();//建立全局污染保存通路
-   var a = document.getElementById("myRange").value;//建立全局污染保存迷宫尺寸
-   var go = () => {
+   let nodes = new Array(); //建立局部污染保存已遍历的节点
+   let road = new Array();//建立局部污染保存通路
+   
+   let go = () => {
    a = document.getElementById("myRange").value;
       net();
       nodes = [];
@@ -114,9 +113,9 @@
       firstnode.countChildrennode();//计算子节点数n
       for (let node = firstnode; (node.n > 0 || node !== firstnode);) {
          if (node.n > 0) {
-            var direction = Math.floor(Math.random() * node.n); //根据子节点数目进行随机选择子节点
-            var [...child] = node.children[direction]; //建立子节点,试了一下es6的数解构赋值...
-            var newnode = new Node(child); //new出子节点
+            let direction = Math.floor(Math.random() * node.n); //根据子节点数目进行随机选择子节点
+            let [...child] = node.children[direction]; //建立子节点,试了一下es6的数解构赋值...
+            let newnode = new Node(child); //new出子节点
             nodes.push(child); //用全局污染保存已遍历过的节点坐标。
             newnode.father = node;//为子节点增加一个属性：父节点的指针
             newnode.countChildrennode();//计算新节点的子节点数n
@@ -161,7 +160,7 @@
       document.getElementById(((a - 1).toString().padStart(3, '0')) + ((a - 1).toString().padStart(3, '0'))).classList.add('right');
       return
    }
-   var isin = (a, b) => { //遍历程序,判断数组a是否在二维数组b中
+   let isin = (a, b) => { //遍历程序,判断数组a是否在二维数组b中
       if (b.length != 0) {
          for (let i = 0; i < b.length; i++) {
             if ((b[i][0] === a[0]) && (b[i][1] === a[1])) {
@@ -172,14 +171,16 @@
       return -1;
    }
 
-   var pushfather = (node) => { //用来保存一个点的所有父节点
+   let pushfather = (node) => { //用来保存一个点的所有父节点
       road.push(node.node);
       if ((node.node[0] == 0) && (node.node[1] == 0)) {
          return;
       }
       return pushfather(node.father);
    }
-   var markroad = () => { //迷宫正确道路标记
+   let markroad = () => { //迷宫正确道路标记
+
+   console.log('run');
       for (let i = 0; i < a; i++) {
          for (let j = 0; j < a; j++) {
             if (isin(([i, j]), road) === 1) {
@@ -189,6 +190,9 @@
          }
       }
    }
+   return{go,markroad}
+}
+let{go,markroad}=app();//解构赋值，注意这里app（）必须只运行一次否则go和markroad无法共享变量。
 </script>
 
 </html>
